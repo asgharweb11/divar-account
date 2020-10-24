@@ -21,6 +21,7 @@ export default function Home() {
     useEffect(() => {
         dispatch(DetailAction(false))
     } , [])
+    console.log('hello')
   return (
     <Layout>
       <div className={styles.container}>
