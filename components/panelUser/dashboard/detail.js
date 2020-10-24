@@ -11,7 +11,7 @@ import Slider from "react-slick"
 // Components 
 import { color4 , colorRed , boxShadow} from "../styles/styles"
 import Statistics from "./statistics"
-import Chart from "./chart"
+// import Chart from "./chart"
 import SliderUsers from "./usersActivity"
 import DataGrid from "./dataGrid"
 // Styles 
