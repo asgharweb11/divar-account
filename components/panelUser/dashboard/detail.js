@@ -6,7 +6,7 @@ import {
     CardActionArea
 } from "@material-ui/core"
 import { makeStyles } from "@material-ui/core/styles"
-import ChartApex from "react-apexcharts"
+// import ChartApex from "react-apexcharts"
 import Slider from "react-slick"
 // Components 
 import { color4 , colorRed , boxShadow} from "../styles/styles"
@@ -32,9 +32,9 @@ const Detail = () => {
             <Grid className={style.chart_item} item xs={12}>
                 <Statistics />
             </Grid>
-            <Grid className={style.chart_item} item md={8} sm={6} xs={12}>
+            {/* <Grid className={style.chart_item} item md={8} sm={6} xs={12}>
                 <Chart />
-            </Grid>
+            </Grid> */}
             <Grid className={style.chart_users} item md={4} sm={6} xs={12}>
                 <SliderUsers />
             </Grid>
