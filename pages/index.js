@@ -18,10 +18,10 @@ import styles from '../styles/Home.module.css'
 export default function Home() {
   const dispatch = useDispatch();
 
-    useEffect(() => {
-        dispatch(DetailAction(false))
-    } , [])
-    console.log('hello')
+  useEffect(() => {
+      dispatch(DetailAction(false))
+  } , [])
+
   return (
     <Layout>
       <div className={styles.container}>
