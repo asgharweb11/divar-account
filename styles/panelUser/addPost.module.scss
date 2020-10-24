@@ -1,0 +1,24 @@
+@import "./global.module.scss";
+
+
+.step1_main {
+    background: white;
+    padding: 10px;
+    margin: 50px 0px;
+    box-shadow: $boxShadow;
+}
+.step1_forms_form{
+    margin-bottom: 20px;
+}
+
+.step1_uploadFile{
+    position: relative;
+}
+
+.step2_textFile span {
+    color : $colorRed;
+}
+
+.step2_textFile{
+    width: 100%;
+}
