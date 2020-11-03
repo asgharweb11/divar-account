@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "nodemon server/index.js",
     "build": "next build",
-    "start": "NODE_ENV=production node server.js"
+    "start": "NODE_ENV=production node server/index.js"
   },
   "dependencies": {
     "@material-ui/data-grid": "^4.0.0-alpha.6",
