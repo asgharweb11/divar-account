@@ -1,3 +1,4 @@
+import { useState } from "react"
 import {
     Grid, Typography , TextField , Box , IconButton , Button
 } from "@material-ui/core"
@@ -24,10 +25,35 @@ const useStyles = makeStyles({
 })
 
 
-const FormShop = () => {
+const FormShop = ({changeValue , changeFiles , data , err}) => {
     const classes = useStyles();
     const boxs = [1,2,3,4]
 
+    const [files , setFiles] = useState()
+    const [status , setStatus] = useState({
+        loading : false,
+        spring : false,
+        msg : '',
+    })
+
+    const handleChange = (key) => e => {
+        // setData({...state , [key] : e.target.value});
+        // setErr({...state , [key] : ""});
+        changeValue(key , e.target.value);
+    }
+
+    const handleUpload = index => (e) => {
+        if(e.target.files.length > 0){
+            const reader = new FileReader()
+            reader.onload = (read) => {
+                const img = document.getElementById(`fileReader${index}`)
+                img.src = read.target.result;
+            }
+            reader.readAsDataURL(e.target.files[0])
+
+            changeFiles(index , e.target.files[0])
+        }   
+    }
     return (
         <div className={style.formShop}>
             <Grid container direction="row" justify="flex-start" alignItems="center" spacing={3}>
@@ -38,9 +64,28 @@ const FormShop = () => {
                     </div>
                 </Grid>
                 <Grid item xs={12}>
-                    <TextField 
+                    <TextField
+                        helperText={err.title !== "" ? err.title : ""}
+                        error={err.title !== "" ? true : false}
+                        defaultValue={data.title}
+                        onChange={handleChange("title")}
                         label="عنوان فروشگاه"
                         placeholder="لطفا عنوان فروشگاه خود را با حروف انگلیسی تایپ کنید"
+                        variant="outlined"
+                        fullWidth
+                        InputLabelProps={{
+                            shrink : true
+                        }}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        helperText={err.idshop !== "" ? err.idshop : ""}
+                        error={err.idshop !== "" ? true : false}
+                        defaultValue={data.idshop}
+                        onChange={handleChange("idshop")}
+                        label="آیدی فروشگاه"
+                        placeholder="لطفا یک آیدی برای فروشگاه خود وارد نمایید"
                         variant="outlined"
                         fullWidth
                         InputLabelProps={{
@@ -70,7 +115,7 @@ const FormShop = () => {
                                                     display="flex" justifyContent="center" alignItems="center" 
                                                     style={{background : "#ef39bc21"}}
                                                 >
-                                                    <Box component="input" multiple display="none" type="file" id={`upload${index}`} />
+                                                    <Box onChange={handleUpload(index)} component="input" multiple display="none" type="file" id={`upload${index}`} />
                                                     <label htmlFor={`upload${index}`}>
                                                         <IconButton className={classes.iconBtn} component="span">
                                                             <PhotoCamera />
@@ -78,7 +123,7 @@ const FormShop = () => {
                                                     </label>
                                                 </Box>
                                                 <div className={style.formShop_photo}>
-                                                    <img src="/post/2.jpg" alt="آپلود تصویر فروشگاه" />
+                                                    <img id={`fileReader${index}`} src="/post/2.jpg" alt="آپلود تصویر فروشگاه" />
                                                 </div>
                                             </div>
                                         </Grid>

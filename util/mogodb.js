@@ -32,7 +32,7 @@ export async function connectToDatabase() {
         useNewUrlParser: true,
         useUnifiedTopology: true,
       }
-      console.log("hello 2")
+      
       cached.promise = MongoClient.connect(MONGODB_URI, opts)
         .then((client) => {
           conn.client = client

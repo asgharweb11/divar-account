@@ -33,28 +33,81 @@ function getSteps() {
   return ['اطلاعات محصول', 'جزئیات بیشتر'];
 }
 
-function getStepContent(step) {
-  switch (step) {
-    case 0:
-      return (
-        <React.Fragment>
-          <Step0 />
-        </React.Fragment>
-      );
-    case 1:
-      return (
-        <React.Fragment>
-          <Step1 />
-        </React.Fragment>
-      );
-    default:
-      return 'Unknown step';
-  }
-}
 
 const NewPost = () => {
   const classes = useStyles();
   
+
+  const [detail , setDetail] = useState({
+    title : '',
+    descript : '',
+    photos : {},
+    category : '',
+    price : 0,
+    tags : [],
+    file : null,
+    rules : false,
+  })
+
+  const [err , setErr] = useState({
+    title : '',
+    descript : '',
+    category : '',
+    price : '',
+    tags : '',
+    file : '',
+    rules : '',
+  })
+
+  const handleInput = (key , value) => {
+    setErr({...err , [key] : ''})
+    if(key === "tags"){
+      setDetail({...detail , [key] : [...detail.tags , value]})
+    } else{
+      setDetail({...detail , [key] : value})
+    }
+    
+  }
+
+  const handlePhoto = (index , photo) => {
+    if(photo === "remove"){
+      setDetail({...detail , photos : {...detail.photos , [index] :  null}})
+    } else {
+      setDetail({...detail , photos : {...detail.photos , [index] : photo}})
+    }
+
+  }
+
+  const handleFile = (file) => {
+    setDetail({...detail , files : [
+      ...files,
+      file
+    ]})
+  }
+
+  detail.price.toFixed
+
+  // ----------------------------------------------------------------------------------
+
+  function getStepContent(step) {
+   switch (step) {
+     case 0:
+       return (
+         <React.Fragment>
+           <Step0 detail={detail} err={err} handleInput={handleInput} handlePhoto={handlePhoto} />
+         </React.Fragment>
+       );
+     case 1:
+       return (
+         <React.Fragment>
+           <Step1 detail={detail} err={err} handleInput={handleInput} handleFile={handleFile}/>
+         </React.Fragment>
+       );
+     default:
+       return 'Unknown step';
+   }
+ }
+
   const [activeStep, setActiveStep] = useState(0);
   const [skipped, setSkipped] = useState(new Set());
   const steps = getSteps();
@@ -68,17 +121,29 @@ const NewPost = () => {
   };
 
   const handleNext = () => {
+    
+    if((detail.title.length < 5 || detail.descript.length < 100) && activeStep === 0){
+      setErr({
+        ...err,
+        title : detail.title.length > 5 ? '' : 'فیلد عنوان شما نباید کمتر از 5 کارکتر باشد !!',
+        descript : detail.descript.length > 100 ? '' : 'فیلد توضیحات شما نباید کمتر از 100 کارکتر باشد !!'
+      })
+      return false;
+    } else if((detail.category === '' || detail.price < 5000 || detail.file === null) && activeStep === 1){
+      setErr({
+        ...err,
+        category : detail.category !== '' ? '' : 'فیلد دسته بندی ضروری میباشد !!',
+        price : detail.price >= 5000 ? '' : 'فیلد قیمت محصول شما نباید کمتر از 5.000 تومان باشد !!',
+        file : detail.file !== null ? '' : 'فیلد آپلود فایل ضروری میباشد ، لطفا تکمیل فرمایید !!'
+      })
+      return false;
+    } 
+
     let newSkipped = skipped;
     if (isStepSkipped(activeStep)) {
       newSkipped = new Set(newSkipped.values());
       newSkipped.delete(activeStep);
     }
-
-
-    // if(activeStep === 0){
-    //   alert("نمیشه بری صفحه بعد")
-    //   return false;
-    // }
 
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
     setSkipped(newSkipped);
@@ -112,26 +177,26 @@ const NewPost = () => {
     <Grid container direction="row" justify="flex-start" alignItems="flex-start">
       <Grid item xs={12}>
         <div className={classes.root}>
-      <Stepper className={classes.stepper} activeStep={activeStep}>
-        {
-          steps.map((label, index) => {
-            const stepProps = {};
-            const labelProps = {};
-            if (isStepOptional(index)) {
-              labelProps.optional = <Typography variant="caption">انتشار</Typography>;
+          <Stepper className={classes.stepper} activeStep={activeStep}>
+            {
+              steps.map((label, index) => {
+                const stepProps = {};
+                const labelProps = {};
+                if (isStepOptional(index)) {
+                  labelProps.optional = <Typography variant="caption">انتشار</Typography>;
+                }
+                if (isStepSkipped(index)) {
+                  stepProps.completed = false;
+                }
+                return (
+                  <Step key={label} {...stepProps}>
+                    <StepLabel {...labelProps}>{label}</StepLabel>
+                  </Step>
+                );
+              })
             }
-            if (isStepSkipped(index)) {
-              stepProps.completed = false;
-            }
-            return (
-              <Step key={label} {...stepProps}>
-                <StepLabel {...labelProps}>{label}</StepLabel>
-              </Step>
-            );
-          })
-        }
-      </Stepper>
-      <div>
+          </Stepper>
+        <div>
         {
           activeStep === steps.length ? (
             <div>
@@ -146,12 +211,12 @@ const NewPost = () => {
           ) : (
             <div>
               {
-                getStepContent(activeStep)
+                getStepContent(activeStep , detail , err)
               }
               <div>
 
                 <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
-                  Back
+                  قبلی
                 </Button>
                 
                 <Button

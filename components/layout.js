@@ -1,17 +1,23 @@
-import React , { useState } from "react"
+import React , { useState , useEffect } from "react"
 import Head from "next/head"
+import fetch from "isomorphic-fetch"
 import { useDispatch , useSelector } from "react-redux"
 import {Container , Grid , LinearProgress} from "@material-ui/core"
 import { create } from 'jss';
 import {StylesProvider , jssPreset , createMuiTheme, ThemeProvider} from "@material-ui/core/styles"
 import rtl from 'jss-rtl';
 import {useTransition, animated} from 'react-spring'
+import { green } from '@material-ui/core/colors';
 // Conponents
+import { LoginMiddleWare , LoginMiddle } from "../store/actions/auth/index"
 import Header from "./main/header/header"
 import Footer from "./main/footer/index"
 
 const theme = createMuiTheme({
     direction: 'rtl',
+    palette : {
+        default : green,
+    },
 });
 
 const jss = create({ plugins: [...jssPreset().plugins, rtl()] });
@@ -20,6 +26,7 @@ const jss = create({ plugins: [...jssPreset().plugins, rtl()] });
 
 const Layout = ({children}) => {
 
+    const dispatch = useDispatch()
     const {pageLoading} = useSelector(state => state.Detail)
     const [show, set] = useState(true)
     const transitions = useTransition(show, null, {
@@ -27,7 +34,9 @@ const Layout = ({children}) => {
         enter: { transform: 'translate3d(0,0px,0)' },
         leave: { transform: 'translate3d(0,40px,0)' },
     })
-
+    useEffect(() => {
+        dispatch(LoginMiddleWare())
+    } , [])
 
     return (
         <React.Fragment>
@@ -85,5 +94,6 @@ const Layout = ({children}) => {
         </React.Fragment>
     )
 }
+
 
 export default Layout;

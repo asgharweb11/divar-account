@@ -10,6 +10,7 @@ const Register = () => {
     useEffect(() => {
         dispatch(DetailAction(false))
     } , [])
+    
     return (
         <React.Fragment>
             <MakeShop />

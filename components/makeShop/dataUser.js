@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux"
 import {
     Grid, Typography
 } from "@material-ui/core"
@@ -9,6 +10,8 @@ import {
 import style from "../../styles/makeShop/makeShop.module.scss"
 
 const DataUser = () => {
+    const { name , lastname , email , bio } = useSelector(state => state.Auth)
+
     return (
         <div className={style.dataUser}>
             <Grid container direction="row" justify="center" alignItems="flex-start" spacing={3}>
@@ -25,15 +28,15 @@ const DataUser = () => {
                 </Grid>
                 <Grid item xs={12}>
                     <div className={style.texts}>
-                        <Typography variant="subtitle1" component="h3">اصغر علی عبدی</Typography>
-                        <Typography variant="caption" component="span">asgharweb11@gmail.com</Typography>
+                        <Typography variant="subtitle1" component="h3">{name}</Typography>
+                        <Typography variant="caption" component="span">{email}</Typography>
                     </div>
                 </Grid>
                 <Grid item xs={12}>
                     <div className={style.descript}>
                         <Typography variant="subtitle1" component="h4">بیوگرافی شما</Typography>
                         <Typography variant="body1" component="p">
-                        در این مطلب قصد داریم نگاهی به بازی‌های رایگان روزانه اندروید و آیفون داشته باشیم و آن‌ها را با شما کاربران به اشتراک بگذاریم. 
+                            {bio ? bio : "شما برای حساب خود بیوگرافی ای تنظیم نکرده اید"}
                         </Typography>
                     </div>
                 </Grid>

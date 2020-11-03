@@ -1,7 +1,10 @@
+import { useState } from "react"
 import {
-    Box , Grid , TextField , CardMedia , Button
+    Box , Grid , TextField , CardMedia , Button , IconButton
 } from "@material-ui/core"
 import { makeStyles } from "@material-ui/core/styles"
+// -------------------------- Icons --------------------------
+import {HighlightOff} from '@material-ui/icons';
 // Style 
 import style from "../../../../styles/panelUser/addPost.module.scss"
 
@@ -21,12 +24,51 @@ const useStyles = makeStyles({
     },
     textarea : {
         height : "250px"
+    },
+    btnRemove : {
+        backgroundColor : "#ffffffcc"
     }
 })
 
-const Step1 = () => {
+const Step1 = ({detail , err , handleInput , handlePhoto}) => {
     const classes = useStyles()
     const boxs = [1 , 2 , 3 , 4]
+
+
+    const [btnFiles , setBtnFiles] = useState({
+        file1 : false,
+        file2 : false,
+        file3 : false,
+        file4 : false,
+    })
+
+    const changeInput = (key) => e => {
+        handleInput(key , e.target.value)
+    }
+
+    const changePhoto = (index) => e => {
+        if(e.target.files.length > 0){
+
+            const reader = new FileReader()
+            reader.onload = read => {
+                const img = document.getElementById(`photo-${index}`)
+                img.src = read.target.result
+            }
+            reader.readAsDataURL(e.target.files[0])
+
+            setBtnFiles({...btnFiles , [`file${index}`] : true})
+            handlePhoto(index , e.target.files[0])
+
+        }
+    }
+
+    const ClickRemove = index => e => {
+        const img = document.getElementById(`photo-${index}`)
+        img.src = "/background/background.jpeg";
+        handlePhoto(index , "remove")
+        setBtnFiles({...btnFiles , [`file${index}`] : false})
+    }
+
     return (
         <div className={style.step1_main}>
             <Grid container direction="row" justify="center" alignItems="flex-start" spacing={3}>
@@ -36,8 +78,10 @@ const Step1 = () => {
                             <TextField
                                 id="outlined-helperText"
                                 label="عنوان محصول"
-                                defaultValue=""
-                                helperText="لطفا عنوان محصول خود را وارد نمایید"
+                                error={err.title === '' ? false : true}
+                                defaultValue={detail.title}
+                                onChange={changeInput("title")}
+                                helperText={err.title}
                                 variant="outlined"
                                 fullWidth
                             />
@@ -47,9 +91,12 @@ const Step1 = () => {
                                 className={classes.textarea}
                                 id="outlined-multiline-static"
                                 label="توضیحات محصول"
+                                error={err.descript === '' ? false : true}
+                                defaultValue={detail.descript}
+                                onChange={changeInput("descript")}
+                                helperText={err.descript}
                                 rows={13}
                                 multiline
-                                defaultValue=""
                                 variant="outlined"
                                 fullWidth
                             />
@@ -64,7 +111,7 @@ const Step1 = () => {
                                     {
                                         boxs.map((box , index) => {
                                             return (
-                                                <Grid item xs={6}>
+                                                <Grid item xs={6} key={index}>
                                                     <div className={style.step1_uploadFile}>
                                                         <Box
                                                             className={classes.step1_uploadBtn}
@@ -80,18 +127,36 @@ const Step1 = () => {
                                                             <input
                                                                 accept="image/*"
                                                                 className={classes.input}
-                                                                id="contained-button-file"
+                                                                id={`contained-button-file${index}`}
                                                                 multiple
                                                                 type="file"
+                                                                onChange={changePhoto(index)}
                                                             />
-                                                            <label htmlFor="contained-button-file">
-                                                                <Button variant="contained" color="primary" component="span">
-                                                                    آپلود عکس
-                                                                </Button>
-                                                            </label>
+                                                            {
+                                                                !btnFiles[`file${index}`] 
+                                                                ? 
+                                                                    (
+                                                                        <label id={`btnUpload${index}`} htmlFor={`contained-button-file${index}`}>
+                                                                            <Button variant="contained" color="primary" component="span">
+                                                                                آپلود عکس
+                                                                            </Button>
+                                                                        </label>
+                                                                    )
+                                                                :
+                                                                    (
+                                                                        <label id={`RemoveUpload${index}`}>
+                                                                            <IconButton onClick={ClickRemove(index)} className={classes.btnRemove} color="secondary" variant="contained">
+                                                                                <HighlightOff />
+                                                                            </IconButton>
+                                                                        </label>
+                                                                    )
+                                                            }
+                                                            
+                                                            
                                                         </Box>
                                                         <div className={style.step1_uploadPic}>
                                                             <CardMedia 
+                                                                id={`photo-${index}`}
                                                                 component="img"
                                                                 alt="اپلود عکس محصول"
                                                                 title="اپلود عکس محصول"

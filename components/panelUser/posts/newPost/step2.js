@@ -1,12 +1,15 @@
+import { useState } from "react"
 import {
     Box , Grid , TextField , Button , FormControl , MenuItem , Select , InputLabel ,
-    InputAdornment , OutlinedInput, Typography , IconButton
+    InputAdornment , OutlinedInput, Typography , IconButton , Chip
 } from "@material-ui/core"
 import { makeStyles } from "@material-ui/core/styles"
 // Icons
 import {
-    CheckBox
+    CheckBox , Face , Done , HighlightOff
 } from '@material-ui/icons';
+// ----------------------- Methods --------------------------------
+import { currencyFormat } from "../../../../methods/validator"
 // Style 
 import style from "../../../../styles/panelUser/addPost.module.scss"
 import {
@@ -40,9 +43,46 @@ const useStyles = makeStyles({
     }
 })
 
-const Step1 = () => {
+const Step1 = ({detail , err , handleInput , handleFile}) => {
     const classes = useStyles()
     const boxs = [1 , 2 , 3 , 4]
+
+    const [tags , setTags] = useState([])
+    const [inputTag , setInputTag] = useState('')
+    const price = Number(detail.price).toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+    // ------------------------------------------
+    const changeInput = (key) => e => {
+        if(key === "price"){
+            handleInput(key , e.target.value.replace(/,/gi , ""))
+        } else {
+            handleInput(key , e.target.value)
+        }
+    }
+
+    const changeFile = file => e => {
+        handleFile(e.target.files)
+    }
+
+    const changeSelect = key => e => {
+        handleInput(key , e.target.value)
+    }
+
+    const keyDownTags = key => e => {
+        if(e.keyCode === 13){
+            handleInput(key , e.target.value)
+            setTags([...tags , e.target.value])
+            setInputTag('')
+        }
+    }
+
+
+    const values = [
+        "کامپیوتر",
+        "پلی استیشن 4",
+        "اکیس باکس وان",
+        "اندروید"
+    ]
+
     return (
         <div className={style.step1_main}>
             <Grid container direction="row" justify="center" alignItems="flex-start" spacing={3}>
@@ -57,14 +97,16 @@ const Step1 = () => {
                                         id="demo-simple-select-outlined"
                                         value=""
                                         label="انتخاب دسته بندی"
+                                        value={detail.category}
+                                        onChange={changeSelect("category")}
                                     >
-                                        <MenuItem value="">
+                                        <MenuItem value="هیچ">
                                             <em>هیچ</em>
                                         </MenuItem>
-                                        <MenuItem value={10}>کامپیوتر</MenuItem>
-                                        <MenuItem value={20}>پلی استیشن 4</MenuItem>
-                                        <MenuItem value={30}>اکیس باکس وان</MenuItem>
-                                        <MenuItem value={10}>اندروید</MenuItem>
+                                        <MenuItem value={values[0]}>{values[0]}</MenuItem>
+                                        <MenuItem value={values[1]}>{values[1]}</MenuItem>
+                                        <MenuItem value={values[2]}>{values[2]}</MenuItem>
+                                        <MenuItem value={values[3]}>{values[3]}</MenuItem>
                                     </Select>
                             </FormControl>
                         </div>
@@ -73,22 +115,32 @@ const Step1 = () => {
                                 <InputLabel htmlFor="outlined-adornment-amount">قیمت</InputLabel>
                                 <OutlinedInput
                                     id="outlined-adornment-amount"
-                                    // value={values.amount}
-                                    // onChange={handleChange('amount')}
-                                    startAdornment={<InputAdornment position="start">$</InputAdornment>}
+                                    value={price}
+                                    onChange={changeInput('price')}
+                                    startAdornment={<InputAdornment position="start">$ تومان</InputAdornment>}
                                     labelWidth={60}
                                 />
                             </FormControl>
                         </div>
-                        <div className={style.step1_forms_form}>
-                            <TextField
-                                id="outlined-helperText"
-                                label="تگ محصول شما"
-                                defaultValue=""
-                                helperText=""
-                                variant="outlined"
-                                fullWidth
-                            />
+                        <div className={`${style.step1_forms_form} ${style.step1_formTag}`}>
+                            <div className={style.step1_tags}>
+                                {
+                                    tags.map(tag => {
+                                        return (
+                                            <Chip
+                                                style={{margin : "1px"}}
+                                                icon={<HighlightOff />}
+                                                label={tag}
+                                                clickable
+                                                color="primary"
+                                                // onDelete={handleDelete}
+                                                deleteIcon={<Done />}
+                                            />
+                                        )
+                                    })
+                                }
+                            </div>
+                            <input type="text" onKeyDown={keyDownTags("tags")} onChange={e => setInputTag(e.target.value)} value={inputTag} placeholder="وارد کردن تگ ..." className={style.step1_tags} />
                         </div>
                     </div>
                 </Grid>
@@ -108,7 +160,7 @@ const Step1 = () => {
                                         >
                                             <div className={style.step2_textFile}>
                                                 <Typography variant="subtitle1" component="p">
-                                                    طفا اطلاعات خود را درون یک فایل <span>txt</span> یا <span>zip</span> ذخیره کنید سپس آپلود کنید
+                                                    لطفا اطلاعات خود را درون یک فایل <span>txt</span> یا <span>zip</span> ذخیره کنید سپس آپلود کنید
                                                     <br />
                                                     لازم به ذکر میباشد اطلاعات شما بصورت رمزگذاری شده و امنیت قوی در 
                                                     <span> 

@@ -1,25 +1,39 @@
-import { useState } from "react"
+import { useEffect , useState } from "react"
 import { useRouter} from "next/router"
 import Link from "next/link"
+import { useDispatch , useSelector } from "react-redux"
+import fetch from "isomorphic-fetch"
+import FormData from "form-data"
 import {
-    Grid , ButtonGroup , Button
+    Grid , ButtonGroup , Button , LinearProgress
 } from "@material-ui/core"
+import MuiAlert from "@material-ui/lab/Alert"
 import {
     makeStyles
-} from "@material-ui/core"
+} from "@material-ui/core/styles"
 import { create } from 'jss';
 import {StylesProvider , jssPreset , createMuiTheme, ThemeProvider} from "@material-ui/core/styles"
 import rtl from 'jss-rtl';
+// Method
+import { validateEmail , userRegex } from "../../methods/validator"
 
-// Components 
+// ------------------- Components ---------------------
+import { Register , LoginMiddleWare } from "../../store/actions/auth"
+import { CreateShop } from "../../store/actions/auth/shop"
+// ----
 import FormUser from "./formUser";
 import FormShop from "./formShop";
 import DataUser from "./dataUser"
-// Styles 
+// ------------------- Styles ---------------------
 import style from "../../styles/makeShop/makeShop.module.scss"
 
 
 const jss = create({ plugins: [...jssPreset().plugins, rtl()] });
+
+
+function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const useStyles = makeStyles({
     makeShop_main : {
@@ -53,8 +67,130 @@ const theme = createMuiTheme({
 });
 
 const MakeShop = () => {
+
+    const dispatch = useDispatch()
+    const { name , lastname , email } = useSelector(state => state.Auth)
+    //-------------------------------------------------------------
     const classes = useStyles()
+    //-------------------------------------------------------------
     const Router = useRouter()
+    //-------------------------------------------------------------
+
+
+    useEffect(() => {
+        dispatch(LoginMiddleWare())
+    } , [])
+
+
+    const [data , setData] = useState({
+        title : "",
+        idshop : "",
+        carsoul : {},
+        name : '',
+        lastname : '',
+        email : '',
+        password : '',
+        repassword : '',
+        files : []
+    })
+
+    const [err , setErr] = useState({
+        title : '',
+        idshop : '',
+        carsoul : '',
+        name : '',
+        lastname : '',
+        email : '',
+        password : '',
+        repassword : '',
+        msg : '',
+        loading : false,
+        status : false,
+        color : "error",
+        success : false
+    })
+
+
+    const handChange = (key , value) => {
+        setErr({...err , [key] : ""})
+        setData({...data , [key] : value});
+    }
+
+    const handleFiles = (key , file) => {
+        setData({...data , files : [
+            ...data.files,
+            file
+        ]})
+    }
+
+
+    const handleSubmit = async () => {
+        const txt = "این فیلد ضروری میباشد ، لطفا تکمیل نمایید";
+        const txtIdshop = "آیدی فروشگاه شما باید بدون فاصله و با حروف لاتین شود";
+        const txtEmail = "لطفا ایمیل صحیحی وارد نمایید";
+        const txtPass = "پسورد شما نباید خالی یا کمتر از 6 کارکتر باشد !!"
+        const txtEqul = "پسوردهای شما با هم مطابقت ندارند !!"
+
+        if(data.title.length < 3){
+            setErr({...err , title : txt})
+            return false;
+        }
+        else if(data.idshop.length < 3 || !data.idshop.match(userRegex)){
+            setErr({...err , idshop : txtIdshop})
+            return false;
+        }
+        else if(data.name.length < 2 && !email){
+            setErr({...err , name : txt})
+            return false;
+        }else if(data.lastname.length < 2 && !email){
+            setErr({...err , lastname : txt})
+            return false;
+        }
+        else if((data.email === "" || !validateEmail(data.email)) && !email){
+            setErr({...err , email : txtEmail})
+            return false;
+        } else if((data.password === "" || data.password.length < 5) && !email){
+            setErr({...err , password : txtPass })
+            return false;
+        } else if((data.repassword === "" || data.repassword !== data.password) && !email){
+            setErr({...err , password : txtEqul , repassword : txtEqul})
+            return false;
+        }
+
+        setErr({...err , loading : true , status : false , msg : "لطفا شکیبا باشید ..." , success : true})
+
+        const statusUser = email ? true : false
+        const formData = new FormData()
+        formData.append('name', data.name.length > 2 ? data.name : name)
+        formData.append('lastname', data.lastname.length > 2 ? data.lastname : lastname)
+        formData.append('email', data.email.length > 4 ? data.email : email)
+        formData.append('password', data.password.length > 4 ? data.password : "password")
+        formData.append('title', data.title)
+        formData.append('idshop', data.idshop)
+        formData.append('status', statusUser)
+        data.files.map(file => {
+            formData.append('files', file)
+            console.log("files : " , file)
+        })
+        
+        const res = await fetch("/api/auth/makeshop" , {
+            method : "POST",
+            body : formData
+        })
+
+        const getData = await res.json()
+        console.log("data : " , getData)
+        if(getData.status === false){
+            setErr({...err , loading : false , status : true , msg : getData.msg , color : "error" , success : false})
+        }else {
+            if(!email) {
+                dispatch(Register(getData.user))
+            }
+            dispatch(CreateShop(getData.shop))
+            setErr({...err , loading : false , status : true ,  msg : getData.msg , color : "success" , success : true})
+            Router.push("/dashboard")
+        }
+    }
 
     return (
         <StylesProvider jss={jss}>
@@ -63,20 +199,46 @@ const MakeShop = () => {
                     <Grid className={classes.makeShop_main} container direction="row" justify="center" alignItems="center">
                         <Grid className={classes.makeShop} item md={8} sm={10} xs={11}>
                             <Grid container direction="row" justify="center" alignItems="flex-start" spacing={1}>
-                                {/* <Grid item md={5} sm={6} xs={12}>
-                                    <FormUser />
-                                </Grid> */}
-                                <Grid item md={5} sm={6} xs={12}>
-                                    <DataUser />
-                                </Grid>
+                                {
+                                    err.loading && ( 
+                                        <Grid item xs={12}>
+                                            <LinearProgress />
+                                        </Grid>
+                                    )
+                                }
+                                {
+                                    err.status && (
+                                            <Grid item xs={12}>
+                                                <Alert severity={err.color}>{err.msg}</Alert>
+                                            </Grid>
+                                        )
+                                    
+                                }
+                                {/* ------------------------------------ */}
+                                {
+                                    email 
+                                    ?   
+                                        (
+                                            <Grid item md={5} sm={6} xs={12}>
+                                                <DataUser />
+                                            </Grid>
+                                        )
+                                    :   // ----------------------------------
+                                        (
+                                            <Grid item md={5} sm={6} xs={12}>
+                                                <FormUser changeValue={handChange} err={err} data={data}/>
+                                            </Grid> 
+                                        )
+                                }
+                                
                                 <Grid item md={7} sm={6} xs={12}>
-                                    <FormShop />
+                                    <FormShop changeValue={handChange} changeFiles={handleFiles} err={err} data={data}/>
                                 </Grid>
                                 <Grid className={classes.formBtns} item xs={12}>
                                     <div className={style.btns}>
                                         <ButtonGroup>
                                             <Button onClick={() => (Router.push("/"))} variant="outlined" color="secondary">برگشت</Button>
-                                            <Button variant="outlined" color="primary">ساخت فروشگاه</Button>
+                                            <Button onClick={handleSubmit} variant="outlined" color="primary" disabled={err.success}>ساخت فروشگاه</Button>
                                         </ButtonGroup>
                                     </div>
                                 </Grid>

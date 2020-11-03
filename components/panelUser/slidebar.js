@@ -27,6 +27,7 @@ import {
 } from '@material-ui/icons';
 // components 
 import { DetailAction } from "../../store/actions/detailAction"
+import { Logout } from "../../store/actions/auth"
 import {
     color, colorBlue
 } from "./styles/styles"
@@ -204,9 +205,7 @@ const Slidebar = () => {
                     defaultCollapseIcon={<ExpandLess />}
                     defaultExpandIcon={<ExpandMore />}
                 >
-                    <Link href="/">
-                        <StyledTreeItem onClick={() => {dispatch(DetailAction(true))}} nodeId="1" labelText="خروج" labelIcon={AccountBox} />
-                    </Link>
+                    <StyledTreeItem onClick={() => {dispatch( Logout() )}} nodeId="1" labelText="خروج" labelIcon={AccountBox} />
                 </TreeView>
             </div>
         </div>

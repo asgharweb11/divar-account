@@ -1,5 +1,6 @@
-import React , { useState } from "react"
+import React , { useState , useEffect } from "react"
 import Head from "next/head"
+import { useRouter } from "next/router"
 import { useDispatch , useSelector } from "react-redux"
 import {Container , Grid , LinearProgress} from "@material-ui/core"
 import { makeStyles } from "@material-ui/core/styles"
@@ -8,6 +9,7 @@ import {StylesProvider , jssPreset , createMuiTheme, ThemeProvider} from "@mater
 import rtl from 'jss-rtl';
 import {useTransition, animated} from 'react-spring'
 // Conponents
+import { LoginMiddleWare } from "../store/actions/auth/index"
 import Slidebar from "./panelUser/slidebar"
 import Header from "./panelUser/header"
 
@@ -37,7 +39,10 @@ const useStyles = makeStyles({
 
 const Layout = ({children}) => {
 
+    const dispatch = useDispatch()
     const {pageLoading} = useSelector(state => state.Detail)
+    const {email} = useSelector(state => state.Auth)
+    const Router = useRouter()
     const classes = useStyles()
 
     const [show, set] = useState(true)
@@ -46,6 +51,13 @@ const Layout = ({children}) => {
         enter: { transform: 'translate3d(0,0px,0)' },
         leave: { transform: 'translate3d(0,40px,0)' },
     })
+
+    useEffect(() => {
+        dispatch(LoginMiddleWare())
+        if(!email){
+            Router.push("/")
+        }
+    } , [email])
 
     return (
         <React.Fragment>

@@ -247,11 +247,11 @@
 
 .auth_container{
     position: fixed;
-    top: 50px;
-    bottom: 25px;
-    overflow-y: scroll;
-    right: 25px;
-    left: 25px;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;
+    right: 0;
+    left: 0;
     background: #ff9aadc7;
     z-index: 10;
     box-shadow: 0px 0px 10px #b3b3b3;
@@ -268,10 +268,11 @@
 } */
 
 .auth_auth{
-    width : 400px;
+    width: 400px;
     background: white;
     padding: 20px;
     text-align: center;
+    margin: 50px 0px !important;
 }
 /* .auth_title {
 
@@ -309,6 +310,7 @@
     margin-top: 40px;
     margin-bottom: 40px;
 }
+
 
 
 .auth_SignUp{
