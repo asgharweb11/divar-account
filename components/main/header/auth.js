@@ -178,7 +178,7 @@ const Auth = ({fun , display}) => {
             password : form.password
         }
 
-        const reslogin = await fetch("/api/auth/login" , {
+        const reslogin = await fetch("https://divar-account-oflszamwg.vercel.app/api/auth/login" , {
             method : "POST",
             headers : {
                 "Content-Type" : "application/json"
