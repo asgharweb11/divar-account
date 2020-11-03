@@ -52,12 +52,12 @@ const Layout = ({children}) => {
         leave: { transform: 'translate3d(0,40px,0)' },
     })
 
-    useEffect(() => {
-        dispatch(LoginMiddleWare())
-        if(!email){
-            Router.push("/")
-        }
-    } , [email])
+    // useEffect(() => {
+    //     dispatch(LoginMiddleWare())
+    //     if(!email){
+    //         Router.push("/")
+    //     }
+    // } , [email])
 
     return (
         <React.Fragment>
